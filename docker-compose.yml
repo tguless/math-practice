@@ -1,0 +1,8 @@
+services:
+  mathpractice:
+    image: nginx:alpine
+    ports:
+      - "8274:80"
+    volumes:
+      - .:/usr/share/nginx/html:ro
+    restart: unless-stopped

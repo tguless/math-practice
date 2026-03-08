@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Fraction Subtraction - Common Denominators, No Borrowing</title>
+<style>
+@media print {
+  body { margin: 0.3in; }
+  .no-print { display: none !important; }
+  * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .page { page-break-after: always; }
+  .page:last-child { page-break-after: avoid; }
+  .page { display: block !important; }
+  .answer-input { border: 1.5px solid #888 !important; background: transparent !important; }
+}
+body { font-family: 'Times New Roman', Times, serif; margin: 0; padding: 10px; color: #222; }
+nav { display: flex; gap: 6px; justify-content: center; align-items: center; flex-wrap: wrap; padding: 10px 4px 8px; border-bottom: 2px solid #ccc; margin-bottom: 10px; }
+nav a { text-decoration: none; font-size: 14px; font-family: Arial, sans-serif; padding: 6px 14px; border-radius: 4px; background: #e8e8e8; color: #333; }
+nav a:hover { background: #ccc; }
+nav a.active { background: #4CAF50; color: #fff; }
+nav .spacer { flex-grow: 1; }
+nav button { font-size: 14px; font-family: Arial, sans-serif; padding: 6px 18px; border-radius: 4px; background: #2196F3; color: #fff; border: none; cursor: pointer; }
+nav button:hover { background: #1976D2; }
+#score { font-size: 14px; font-family: Arial, sans-serif; font-weight: bold; }
+.page-nav { display: flex; align-items: center; gap: 6px; margin-left: 12px; }
+.page-nav button { font-size: 14px; font-family: Arial, sans-serif; padding: 6px 12px; border-radius: 4px; background: #757575; color: #fff; border: none; cursor: pointer; }
+.page-nav button:hover { background: #616161; }
+.page-nav button:disabled { background: #bbb; cursor: default; }
+#pageIndicator { font-size: 13px; font-family: Arial, sans-serif; white-space: nowrap; }
+.page { max-width: 100%; margin: 0 auto 16px; display: none; }
+.page.active-page { display: block; }
+.page-header { display: flex; justify-content: space-between; font-size: 13px; color: #888; border-bottom: 1px solid #ccc; padding-bottom: 2px; margin-bottom: 2px; }
+.page-title { text-align: center; font-size: 22px; font-weight: bold; margin: 2px 0 1px; }
+.page-subtitle { text-align: center; font-size: 14px; margin: 0 0 2px; color: #555; }
+.name-date { text-align: center; font-size: 14px; color: #555; margin-bottom: 8px; }
+.problems { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 16px 12px; }
+.problem { display: flex; flex-direction: column; padding: 3px 6px; }
+.problem-number { font-size: 12px; color: #888; }
+.row { display: flex; align-items: center; justify-content: flex-end; gap: 3px; min-height: 36px; }
+.sign { width: 18px; text-align: center; font-size: 20px; }
+.whole { font-size: 22px; text-align: right; }
+.fraction { display: inline-flex; flex-direction: column; align-items: center; font-size: 17px; line-height: 1.1; }
+.fraction .num, .fraction .den { text-align: center; min-width: 14px; padding: 0 2px; }
+.frac-bar { border-top: 2px solid #222; width: 100%; min-width: 14px; }
+.hr { border-top: 2px solid #222; margin-top: 3px; }
+.answer-row { display: flex; align-items: center; justify-content: flex-end; gap: 5px; margin-top: 4px; }
+.answer-input { width: 36px; height: 34px; text-align: center; font-size: 18px; border: 1.5px solid #888; background: transparent; padding: 0; outline: none; font-family: inherit; box-sizing: border-box; }
+.answer-input:focus { border-color: #4CAF50; }
+.answer-input.correct { background: #c8ffc8; border-color: #4CAF50; }
+.answer-input.incorrect { background: #ffc8c8; border-color: #e44; }
+.answer-frac { display: inline-flex; flex-direction: column; align-items: center; gap: 2px; }
+.answer-frac .frac-bar { width: 44px; }
+.check-mark { color: #4CAF50; font-size: 22px; font-weight: bold; display: none; }
+.check-mark.show { display: inline; }
+</style>
+</head>
+<body>
+<nav class="no-print">
+  <a class="active" href="fraction-subtraction-common.html">Common &mdash; No Borrowing</a>
+  <a href="fraction-subtraction-common-borrowing.html">Common &mdash; Borrowing</a>
+  <a href="fraction-subtraction-unlike.html">Unlike &mdash; No Borrowing</a>
+  <a href="fraction-subtraction-unlike-borrowing.html">Unlike &mdash; Borrowing</a>
+  <a href="fraction-subtraction-mixed.html">Mixed Practice</a>
+  <a href="fraction-simplify.html">Simplifying Fractions</a>
+  <span class="spacer"></span>
+  <button onclick="checkAnswers()">&#10003; Check Answers</button>
+  <span id="score"></span>
+  <span class="page-nav">
+    <button id="prevBtn" onclick="prevPage()">&laquo; Prev</button>
+    <span id="pageIndicator">Page 1 of 6</span>
+    <button id="nextBtn" onclick="nextPage()">Next &raquo;</button>
+  </span>
+</nav>
+<div id="pages"></div>
+<script>
+const TITLE = 'Fraction Subtraction Practice';
+const SUBTITLE = 'Common Denominators \u2014 No Borrowing';
+const PAGES = 6, PER_PAGE = 20;
+let _s = 42;
+function rand() { _s = (_s * 16807) % 2147483647; return (_s - 1) / 2147483646; }
+function ri(a, b) { return a + Math.floor(rand() * (b - a + 1)); }
+function gcd(a, b) { return b ? gcd(b, a % b) : a; }
+function lcm(a, b) { return a / gcd(a, b) * b; }
+
+function generateOne(type) {
+  while (true) {
+    let w1, n1, d1, w2, n2, d2;
+    if (type === 0) {
+      d1 = d2 = ri(3, 9); n2 = ri(1, d1 - 2); n1 = ri(n2 + 1, d1 - 1);
+      w2 = ri(1, 5); w1 = ri(w2, 9); if (w1 === w2 && n1 <= n2) continue;
+    } else if (type === 1) {
+      d1 = d2 = ri(3, 9); n1 = ri(1, d1 - 2); n2 = ri(n1 + 1, d1 - 1);
+      w2 = ri(1, 5); w1 = ri(w2 + 1, 9);
+    } else if (type === 2) {
+      d1 = ri(2, 9); do { d2 = ri(2, 9); } while (d2 === d1);
+      n1 = ri(1, d1 - 1); n2 = ri(1, d2 - 1);
+      var l = lcm(d1, d2); if (n1 * (l/d1) <= n2 * (l/d2)) continue;
+      w2 = ri(1, 5); w1 = ri(w2, 9);
+    } else {
+      d1 = ri(2, 9); do { d2 = ri(2, 9); } while (d2 === d1);
+      n1 = ri(1, d1 - 1); n2 = ri(1, d2 - 1);
+      var l = lcm(d1, d2); if (n1 * (l/d1) >= n2 * (l/d2)) continue;
+      w2 = ri(1, 5); w1 = ri(w2 + 1, 9);
+    }
+    return { w1, n1, d1, w2, n2, d2 };
+  }
+}
+
+function generate(type) {
+  const probs = [];
+  while (probs.length < PAGES * PER_PAGE) {
+    const p = generateOne(type);
+    if (!probs.some(q => q.w1===p.w1&&q.n1===p.n1&&q.d1===p.d1&&q.w2===p.w2&&q.n2===p.n2&&q.d2===p.d2))
+      probs.push(p);
+  }
+  return probs;
+}
+
+function solve(p) {
+  const l = lcm(p.d1, p.d2);
+  const imp = (p.w1*p.d1+p.n1)*(l/p.d1) - (p.w2*p.d2+p.n2)*(l/p.d2);
+  const w = Math.floor(imp / l); let n = imp % l, d = l;
+  if (n === 0) return { w, n: 0, d: 1 };
+  const g = gcd(n, d); return { w, n: n/g, d: d/g };
+}
+
+const problems = generate(0);
+const pages = document.getElementById('pages');
+for (let pg = 0; pg < PAGES; pg++) {
+  const div = document.createElement('div'); div.className = 'page';
+  let h = `<div class="page-header"><span>Page ${pg+1} of ${PAGES}</span><span>${SUBTITLE}</span></div>`;
+  h += `<div class="page-title">${TITLE}</div><div class="page-subtitle">${SUBTITLE}</div>`;
+  if (pg === 0) h += `<div class="name-date">Name: ______________________&emsp;Date: ______________</div>`;
+  h += `<div class="problems">`;
+  for (let i = 0; i < PER_PAGE; i++) {
+    const idx = pg * PER_PAGE + i, p = problems[idx];
+    h += `<div class="problem"><div class="problem-number">${idx+1}.</div>
+      <div class="row"><div class="sign"></div><div class="whole">${p.w1}</div>
+        <div class="fraction"><div class="num">${p.n1}</div><div class="frac-bar"></div><div class="den">${p.d1}</div></div></div>
+      <div class="row"><div class="sign">&minus;</div><div class="whole">${p.w2}</div>
+        <div class="fraction"><div class="num">${p.n2}</div><div class="frac-bar"></div><div class="den">${p.d2}</div></div></div>
+      <div class="hr"></div>
+      <div class="answer-row">
+        <span class="check-mark" data-ci="${idx}">&#10004;</span>
+        <input type="text" class="answer-input aw" data-i="${idx}" inputmode="numeric" autocomplete="off">
+        <div class="answer-frac"><input type="text" class="answer-input an" data-i="${idx}" inputmode="numeric" autocomplete="off">
+          <div class="frac-bar"></div><input type="text" class="answer-input ad" data-i="${idx}" inputmode="numeric" autocomplete="off"></div>
+      </div></div>`;
+  }
+  h += `</div>`; div.innerHTML = h; pages.appendChild(div);
+}
+
+let currentPage = 0;
+function showPage(n) {
+  const allPages = document.querySelectorAll('.page');
+  currentPage = Math.max(0, Math.min(n, allPages.length - 1));
+  allPages.forEach((p, i) => p.classList.toggle('active-page', i === currentPage));
+  document.getElementById('pageIndicator').textContent = 'Page ' + (currentPage + 1) + ' of ' + allPages.length;
+  document.getElementById('prevBtn').disabled = currentPage === 0;
+  document.getElementById('nextBtn').disabled = currentPage === allPages.length - 1;
+}
+function prevPage() { showPage(currentPage - 1); }
+function nextPage() { showPage(currentPage + 1); }
+showPage(0);
+
+function checkAnswers() {
+  let correct = 0;
+  for (let i = 0; i < problems.length; i++) {
+    const ans = solve(problems[i]);
+    const wE = document.querySelector(`.aw[data-i="${i}"]`);
+    const nE = document.querySelector(`.an[data-i="${i}"]`);
+    const dE = document.querySelector(`.ad[data-i="${i}"]`);
+    const uw = parseInt(wE.value) || 0, un = parseInt(nE.value) || 0, ud = parseInt(dE.value) || 0;
+    let ok = false;
+    if (uw === ans.w) {
+      if (ans.n === 0 && un === 0) ok = true;
+      else if (ud > 0 && un * ans.d === ans.n * ud) ok = true;
+    }
+    [wE, nE, dE].forEach(el => { el.classList.remove('correct','incorrect');
+      if (el.value.trim() !== '') el.classList.add(ok ? 'correct' : 'incorrect'); });
+    const cm = document.querySelector(`.check-mark[data-ci="${i}"]`);
+    cm.classList.toggle('show', ok);
+    if (ok) correct++;
+  }
+  document.getElementById('score').textContent = `Score: ${correct} / ${problems.length}`;
+}
+</script>
+</body>
+</html>
