@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Math Practice</title>
+<style>
+body { font-family: Arial, sans-serif; margin: 0; padding: 40px 20px; color: #222; background: #f9f9f9; }
+h1 { text-align: center; margin-bottom: 8px; }
+p.sub { text-align: center; color: #666; margin-bottom: 32px; }
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; max-width: 900px; margin: 0 auto; }
+.card { background: #fff; border-radius: 8px; padding: 24px 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); text-decoration: none; color: #222; transition: transform 0.15s, box-shadow 0.15s; }
+.card:hover { transform: translateY(-3px); box-shadow: 0 4px 16px rgba(0,0,0,0.14); }
+.card h2 { margin: 0 0 8px; font-size: 18px; color: #333; }
+.card p { margin: 0; font-size: 14px; color: #666; }
+.card .tag { display: inline-block; font-size: 11px; padding: 3px 8px; border-radius: 4px; margin-top: 10px; color: #fff; }
+.tag-sub { background: #4CAF50; }
+.tag-simplify { background: #2196F3; }
+.tag-mixed { background: #FF9800; }
+</style>
+</head>
+<body>
+<h1>Math Practice</h1>
+<p class="sub">Choose a worksheet to get started</p>
+<div class="cards">
+  <a class="card" href="fraction-subtraction-common.html">
+    <h2>Fraction Subtraction &mdash; Common Denominators</h2>
+    <p>Subtract mixed numbers that already share a denominator. No borrowing required.</p>
+    <span class="tag tag-sub">Subtraction</span>
+  </a>
+  <a class="card" href="fraction-subtraction-common-borrowing.html">
+    <h2>Fraction Subtraction &mdash; Common Denom. + Borrowing</h2>
+    <p>Same denominators, but the top fraction is smaller so you must borrow from the whole number.</p>
+    <span class="tag tag-sub">Subtraction</span>
+  </a>
+  <a class="card" href="fraction-subtraction-unlike.html">
+    <h2>Fraction Subtraction &mdash; Unlike Denominators</h2>
+    <p>Find a common denominator first, then subtract. No borrowing needed.</p>
+    <span class="tag tag-sub">Subtraction</span>
+  </a>
+  <a class="card" href="fraction-subtraction-unlike-borrowing.html">
+    <h2>Fraction Subtraction &mdash; Unlike Denom. + Borrowing</h2>
+    <p>Unlike denominators and borrowing from the whole number. The full challenge!</p>
+    <span class="tag tag-sub">Subtraction</span>
+  </a>
+  <a class="card" href="fraction-subtraction-mixed.html">
+    <h2>Mixed Practice &mdash; All Subtraction Types</h2>
+    <p>A mix of all four subtraction types for well-rounded practice.</p>
+    <span class="tag tag-mixed">Mixed</span>
+  </a>
+  <a class="card" href="fraction-simplify.html">
+    <h2>Simplifying Fractions</h2>
+    <p>Reduce each fraction to its lowest terms.</p>
+    <span class="tag tag-simplify">Simplify</span>
+  </a>
+</div>
+</body>
+</html>
