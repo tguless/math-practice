@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Fraction Word Problems</title>
+<style>
+@media print {
+  body { margin: 0.3in; }
+  .no-print { display: none !important; }
+  * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .page { page-break-after: always; }
+  .page:last-child { page-break-after: avoid; }
+  .page { display: block !important; }
+  .answer-input { border: 1.5px solid #888 !important; background: transparent !important; }
+}
+body { font-family: 'Times New Roman', Times, serif; margin: 0; padding: 10px; color: #222; }
+nav { display: flex; gap: 6px; justify-content: center; align-items: center; flex-wrap: wrap; padding: 10px 4px 8px; border-bottom: 2px solid #ccc; margin-bottom: 10px; }
+nav a { text-decoration: none; font-size: 14px; font-family: Arial, sans-serif; padding: 6px 14px; border-radius: 4px; background: #e8e8e8; color: #333; }
+nav a:hover { background: #ccc; }
+nav a.active { background: #4CAF50; color: #fff; }
+nav .spacer { flex-grow: 1; }
+nav button { font-size: 14px; font-family: Arial, sans-serif; padding: 6px 18px; border-radius: 4px; background: #2196F3; color: #fff; border: none; cursor: pointer; }
+nav button:hover { background: #1976D2; }
+#score { font-size: 14px; font-family: Arial, sans-serif; font-weight: bold; }
+.page-nav { display: flex; align-items: center; gap: 6px; margin-left: 12px; }
+.page-nav button { font-size: 14px; font-family: Arial, sans-serif; padding: 6px 12px; border-radius: 4px; background: #757575; color: #fff; border: none; cursor: pointer; }
+.page-nav button:hover { background: #616161; }
+.page-nav button:disabled { background: #bbb; cursor: default; }
+#pageIndicator { font-size: 13px; font-family: Arial, sans-serif; white-space: nowrap; }
+.page { max-width: 100%; margin: 0 auto 16px; display: none; }
+.page.active-page { display: block; }
+.page-header { display: flex; justify-content: space-between; font-size: 13px; color: #888; border-bottom: 1px solid #ccc; padding-bottom: 2px; margin-bottom: 2px; }
+.page-title { text-align: center; font-size: 22px; font-weight: bold; margin: 2px 0 1px; }
+.page-subtitle { text-align: center; font-size: 14px; margin: 0 0 2px; color: #555; }
+.name-date { text-align: center; font-size: 14px; color: #555; margin-bottom: 8px; }
+.problems { display: flex; flex-direction: column; gap: 18px; }
+.problem { border: 1px solid #ddd; border-radius: 6px; padding: 10px 14px; }
+.problem-number { font-size: 13px; color: #888; font-weight: bold; margin-bottom: 4px; }
+.problem-text { font-size: 16px; line-height: 1.5; margin-bottom: 10px; }
+.problem-text .frac { display: inline-flex; flex-direction: column; align-items: center; vertical-align: middle; font-size: 14px; line-height: 1; margin: 0 3px; position: relative; top: -1px; }
+.problem-text .frac .fn { text-align: center; }
+.problem-text .frac .fb { border-top: 1.5px solid #222; min-width: 12px; }
+.problem-text .frac .fd { text-align: center; }
+.answer-area { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.answer-label { font-size: 14px; font-weight: bold; }
+.answer-input { width: 50px; height: 34px; text-align: center; font-size: 18px; border: 1.5px solid #888; background: transparent; padding: 0; outline: none; font-family: inherit; box-sizing: border-box; }
+.answer-input.wide { width: 70px; }
+.answer-input:focus { border-color: #4CAF50; }
+.answer-input.correct { background: #c8ffc8; border-color: #4CAF50; }
+.answer-input.incorrect { background: #ffc8c8; border-color: #e44; }
+.answer-frac { display: inline-flex; flex-direction: column; align-items: center; gap: 2px; }
+.answer-frac .frac-bar { border-top: 2px solid #222; width: 56px; }
+.check-mark { color: #4CAF50; font-size: 22px; font-weight: bold; display: none; }
+.check-mark.show { display: inline; }
+</style>
+</head>
+<body>
+<nav class="no-print">
+  <a href="fraction-subtraction-common.html">Common &mdash; No Borrowing</a>
+  <a href="fraction-subtraction-common-borrowing.html">Common &mdash; Borrowing</a>
+  <a href="fraction-subtraction-unlike.html">Unlike &mdash; No Borrowing</a>
+  <a href="fraction-subtraction-unlike-borrowing.html">Unlike &mdash; Borrowing</a>
+  <a href="fraction-subtraction-mixed.html">Mixed Practice</a>
+  <a href="fraction-simplify.html">Simplifying Fractions</a>
+  <a class="active" href="fraction-word-problems.html">Word Problems</a>
+  <span class="spacer"></span>
+  <button onclick="checkAnswers()">&#10003; Check Answers</button>
+  <span id="score"></span>
+  <span class="page-nav">
+    <button id="prevBtn" onclick="prevPage()">&laquo; Prev</button>
+    <span id="pageIndicator">Page 1 of 6</span>
+    <button id="nextBtn" onclick="nextPage()">Next &raquo;</button>
+  </span>
+</nav>
+<div id="pages"></div>
+<script>
+const TITLE = 'Fraction Word Problems';
+const SUBTITLE = 'Show your work and write the answer';
+const PAGES = 6, PER_PAGE = 5;
+let _s = 751;
+function rand() { _s = (_s * 16807) % 2147483647; return (_s - 1) / 2147483646; }
+function ri(a, b) { return a + Math.floor(rand() * (b - a + 1)); }
+function gcd(a, b) { return b ? gcd(b, a % b) : a; }
+function lcm(a, b) { return a / gcd(a, b) * b; }
+
+function fHtml(n, d) {
+  return '<span class="frac"><span class="fn">' + n + '</span><span class="fb"></span><span class="fd">' + d + '</span></span>';
+}
+function mixHtml(w, n, d) {
+  if (n === 0) return '' + w;
+  return w + fHtml(n, d);
+}
+
+// Answer types: 'whole' = single whole number, 'mixed' = whole + fraction, 'frac' = fraction only
+// Each problem: { text, ansW, ansN, ansD, ansType }
+
+const templates = [];
+
+// TYPE 0: fraction of a number
+// "X has N items. Y has a/b as many. How many does Y have?"
+function gen0() {
+  const names1 = ['Emma','Liam','Olivia','Noah','Ava','James','Sophia','Lucas','Mia','Ethan'];
+  const names2 = ['your friend','her brother','his sister','your cousin','her classmate'];
+  const items = ['strawberries','marbles','stickers','crayons','apples','cookies','pencils','toy cars'];
+  const d = ri(2, 6);
+  const n = ri(1, d - 1);
+  if (gcd(n, d) !== 1) return null;
+  const base = d * ri(2, 6); // ensure whole number result
+  const result = base * n / d;
+  const name = names1[ri(0, names1.length - 1)];
+  const rel = names2[ri(0, names2.length - 1)];
+  const item = items[ri(0, items.length - 1)];
+  const text = name + ' has ' + base + ' ' + item + '. ' +
+    'You have ' + fHtml(n, d) + ' as many ' + item + ' as ' + name + '. How many ' + item + ' do you have?';
+  return { text, ansW: result, ansN: 0, ansD: 1, ansType: 'whole' };
+}
+
+// TYPE 1: fraction of a number plus extra
+// "X has N items. Y has K more than a/b as many. How many does Y have?"
+function gen1() {
+  const names = ['Sophie','Jack','Maya','Ryan','Chloe','Tyler','Lily','Owen'];
+  const items = ['baseball cards','seashells','beads','grapes','goldfish','buttons'];
+  const d = ri(2, 5);
+  const n = ri(1, d - 1);
+  if (gcd(n, d) !== 1) return null;
+  const base = d * ri(2, 5);
+  const extra = ri(2, 8);
+  const result = base * n / d + extra;
+  const name = names[ri(0, names.length - 1)];
+  const item = items[ri(0, items.length - 1)];
+  const text = name + ' has ' + base + ' ' + item + '. You have ' + extra + ' more than ' +
+    fHtml(n, d) + ' as many ' + item + ' as ' + name + '. How many ' + item + ' do you have?';
+  return { text, ansW: result, ansN: 0, ansD: 1, ansType: 'whole' };
+}
+
+// TYPE 2: multiply mixed number by whole (total length/weight)
+// "You have K pieces each W n/d yards long. What is the total length?"
+function gen2() {
+  const units = ['yards','feet','meters','inches'];
+  const things = ['pieces of ribbon','strings of lights','pieces of rope','strips of fabric','boards'];
+  const d = ri(2, 6);
+  const n = ri(1, d - 1);
+  if (gcd(n, d) !== 1) return null;
+  const w = ri(1, 5);
+  const count = ri(2, 5);
+  const unit = units[ri(0, units.length - 1)];
+  const thing = things[ri(0, things.length - 1)];
+  // total = count * (w + n/d) = count*w + count*n/d
+  const totalImp = count * (w * d + n); // improper numerator over d
+  const rw = Math.floor(totalImp / d);
+  let rn = totalImp % d, rd = d;
+  if (rn > 0) { const g = gcd(rn, rd); rn /= g; rd /= g; }
+  const text = 'You have ' + count + ' ' + thing + ' that are each ' + mixHtml(w, n, d) +
+    ' ' + unit + ' long. What is the total length of all the ' + thing + '?';
+  return { text, ansW: rw, ansN: rn, ansD: rd, ansType: rn > 0 ? 'mixed' : 'whole' };
+}
+
+// TYPE 3: two groups of different lengths combined
+// "K1 strings of A w1 n1/d1 long + K2 strings of B each n2/d2 longer. Total?"
+function gen3() {
+  const units = ['yards','feet','meters'];
+  const d = ri(2, 5);
+  const n1 = ri(1, d - 1); if (gcd(n1, d) !== 1) return null;
+  const n2 = ri(1, d - 1); if (gcd(n2, d) !== 1) return null;
+  const w1 = ri(2, 5);
+  const w2extra = ri(1, 3);
+  const k1 = ri(2, 4);
+  const k2 = ri(2, 3);
+  const unit = units[ri(0, units.length - 1)];
+  // length2 = w1 + n1/d + w2extra + n2/d
+  const imp1 = w1 * d + n1;
+  const imp2 = imp1 + w2extra * d + n2;
+  // total = k1 * imp1/d + k2 * imp2/d = (k1*imp1 + k2*imp2)/d
+  const totalImp = k1 * imp1 + k2 * imp2;
+  const rw = Math.floor(totalImp / d);
+  let rn = totalImp % d, rd = d;
+  if (rn > 0) { const g = gcd(rn, rd); rn /= g; rd /= g; }
+  const len2w = Math.floor(imp2 / d), len2n = imp2 % d;
+  const text = 'You have ' + k1 + ' white ribbons that are each ' + mixHtml(w1, n1, d) + ' ' + unit + ' long. ' +
+    'You also have ' + k2 + ' red ribbons that are each ' + mixHtml(len2w, len2n, d) + ' ' + unit + ' long. ' +
+    'If you tie all the ribbons together end to end, how long will they be in all?';
+  return { text, ansW: rw, ansN: rn, ansD: rd, ansType: rn > 0 ? 'mixed' : 'whole' };
+}
+
+// TYPE 4: filling a measuring cup (division with fractions)
+// "A recipe needs W n/d cups. You use a 1/d cup. How many times do you fill it?"
+function gen4() {
+  const foods = ['flour','sugar','oats','rice','cocoa powder','baking mix'];
+  const d = ri(2, 5);
+  const n = ri(1, d - 1); if (gcd(n, d) !== 1) return null;
+  const w = ri(1, 4);
+  const batches = ri(2, 5);
+  // total cups = batches * (w*d + n) / d, using 1/d cup scoop => fills = batches * (w*d + n)
+  const fills = batches * (w * d + n);
+  const food = foods[ri(0, foods.length - 1)];
+  const text = 'A recipe calls for ' + mixHtml(w, n, d) + ' cups of ' + food + '. ' +
+    'You need to make ' + batches + ' batches. You are using a ' + fHtml(1, d) + '-cup measuring cup. ' +
+    'How many times do you fill the measuring cup?';
+  return { text, ansW: fills, ansN: 0, ansD: 1, ansType: 'whole' };
+}
+
+// TYPE 5: subtraction word problem
+// "You had W1 n1/d cups. You used W2 n2/d cups. How much is left?"
+function gen5() {
+  const things = ['gallons of paint','pounds of clay','liters of juice','cups of flour','pounds of sand'];
+  const d = ri(2, 6);
+  const n1 = ri(1, d - 1); if (gcd(n1, d) !== 1) return null;
+  const n2 = ri(1, d - 1); if (gcd(n2, d) !== 1) return null;
+  const w1 = ri(3, 9);
+  const w2 = ri(1, w1 - 1);
+  const thing = things[ri(0, things.length - 1)];
+  const imp1 = w1 * d + n1, imp2 = w2 * d + n2;
+  if (imp1 <= imp2) return null;
+  const diff = imp1 - imp2;
+  const rw = Math.floor(diff / d);
+  let rn = diff % d, rd = d;
+  if (rn > 0) { const g = gcd(rn, rd); rn /= g; rd /= g; }
+  const text = 'You started with ' + mixHtml(w1, n1, d) + ' ' + thing + '. ' +
+    'You used ' + mixHtml(w2, n2, d) + ' ' + thing + '. How much do you have left?';
+  return { text, ansW: rw, ansN: rn, ansD: rd, ansType: rn > 0 ? 'mixed' : 'whole' };
+}
+
+const generators = [gen0, gen1, gen2, gen3, gen4, gen5];
+
+function generateProblems() {
+  const probs = [];
+  let typeIdx = 0;
+  while (probs.length < PAGES * PER_PAGE) {
+    const gen = generators[typeIdx % generators.length];
+    const p = gen();
+    typeIdx++;
+    if (p === null) continue;
+    probs.push(p);
+  }
+  return probs;
+}
+
+const problems = generateProblems();
+const pages = document.getElementById('pages');
+for (let pg = 0; pg < PAGES; pg++) {
+  const div = document.createElement('div'); div.className = 'page';
+  let h = '<div class="page-header"><span>Page ' + (pg+1) + ' of ' + PAGES + '</span><span>' + SUBTITLE + '</span></div>';
+  h += '<div class="page-title">' + TITLE + '</div><div class="page-subtitle">' + SUBTITLE + '</div>';
+  if (pg === 0) h += '<div class="name-date">Name: ______________________&emsp;Date: ______________</div>';
+  h += '<div class="problems">';
+  for (let i = 0; i < PER_PAGE; i++) {
+    const idx = pg * PER_PAGE + i, p = problems[idx];
+    h += '<div class="problem"><div class="problem-number">' + (idx+1) + '.</div>';
+    h += '<div class="problem-text">' + p.text + '</div>';
+    h += '<div class="answer-area"><span class="answer-label">Answer:</span> ';
+    h += '<span class="check-mark" data-ci="' + idx + '">&#10004;</span> ';
+    if (p.ansType === 'whole') {
+      h += '<input type="text" class="answer-input wide aw" data-i="' + idx + '" inputmode="numeric" autocomplete="off">';
+    } else {
+      // mixed number: whole + fraction
+      h += '<input type="text" class="answer-input aw" data-i="' + idx + '" inputmode="numeric" autocomplete="off"> ';
+      h += '<div class="answer-frac"><input type="text" class="answer-input an" data-i="' + idx + '" inputmode="numeric" autocomplete="off">';
+      h += '<div class="frac-bar"></div><input type="text" class="answer-input ad" data-i="' + idx + '" inputmode="numeric" autocomplete="off"></div>';
+    }
+    h += '</div></div>';
+  }
+  h += '</div>'; div.innerHTML = h; pages.appendChild(div);
+}
+
+let currentPage = 0;
+function showPage(n) {
+  const allPages = document.querySelectorAll('.page');
+  currentPage = Math.max(0, Math.min(n, allPages.length - 1));
+  allPages.forEach((p, i) => p.classList.toggle('active-page', i === currentPage));
+  document.getElementById('pageIndicator').textContent = 'Page ' + (currentPage + 1) + ' of ' + allPages.length;
+  document.getElementById('prevBtn').disabled = currentPage === 0;
+  document.getElementById('nextBtn').disabled = currentPage === allPages.length - 1;
+}
+function prevPage() { showPage(currentPage - 1); }
+function nextPage() { showPage(currentPage + 1); }
+showPage(0);
+
+function checkAnswers() {
+  let correct = 0;
+  for (let i = 0; i < problems.length; i++) {
+    const p = problems[i];
+    const wE = document.querySelector('.aw[data-i="' + i + '"]');
+    const nE = document.querySelector('.an[data-i="' + i + '"]');
+    const dE = document.querySelector('.ad[data-i="' + i + '"]');
+    const uw = parseInt(wE.value) || 0;
+    let ok = false;
+    if (p.ansType === 'whole') {
+      ok = (uw === p.ansW);
+      wE.classList.remove('correct','incorrect');
+      if (wE.value.trim() !== '') wE.classList.add(ok ? 'correct' : 'incorrect');
+    } else {
+      const un = parseInt(nE.value) || 0, ud = parseInt(dE.value) || 0;
+      if (uw === p.ansW) {
+        if (p.ansN === 0 && un === 0) ok = true;
+        else if (ud > 0 && un * p.ansD === p.ansN * ud) ok = true;
+      }
+      [wE, nE, dE].forEach(function(el) { el.classList.remove('correct','incorrect');
+        if (el.value.trim() !== '') el.classList.add(ok ? 'correct' : 'incorrect'); });
+    }
+    var cm = document.querySelector('.check-mark[data-ci="' + i + '"]');
+    cm.classList.toggle('show', ok);
+    if (ok) correct++;
+  }
+  document.getElementById('score').textContent = 'Score: ' + correct + ' / ' + problems.length;
+}
+</script>
+</body>
+</html>
